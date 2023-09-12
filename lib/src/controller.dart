@@ -209,7 +209,7 @@ class SlidableController {
   /// [ActionPaneType.start].
   double get ratio => _animationController.value * direction.value;
   set ratio(double value) {
-    final newRatio = (actionPaneConfigurator?.normalizeRatio(value)) ?? value;
+    final newRatio = actionPaneConfigurator?.normalizeRatio(value) ?? value;
     if (_acceptRatio(newRatio) && newRatio != ratio) {
       direction.value = newRatio.sign.toInt();
       _animationController.value = newRatio.abs();
@@ -260,8 +260,24 @@ class SlidableController {
     Duration duration = _defaultMovementDuration,
     Curve curve = _defaultCurve,
   }) async {
+    double extentRatio = 0;
+    if (actionPaneConfigurator == null) {
+      switch (actionPaneType.value) {
+        case ActionPaneType.start:
+          extentRatio = _startActionPaneExtentRatio;
+          break;
+        case ActionPaneType.end:
+          extentRatio = _endActionPaneExtentRatio;
+          break;
+        case ActionPaneType.none:
+          break;
+      }
+    } else {
+      extentRatio = actionPaneConfigurator!.extentRatio;
+    }
+
     return openTo(
-      actionPaneConfigurator!.extentRatio,
+      extentRatio,
       duration: duration,
       curve: curve,
     );
